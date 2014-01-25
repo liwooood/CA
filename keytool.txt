@@ -1,0 +1,3 @@
+keytool -importcert -trustcacerts -alias test -file *.cer -keystore test.keystore
+
+keytool -list -keystore test.keystore -v

@@ -1,0 +1,33 @@
+openssl genrsa -aes256 -out private/ca.key.pem 2048
+
+openssl req -new -key private/ca.key.pem -out private/ca.csr -subj "/C=CN/ST=SH/L=SH/O=cssweb/OU=product/CN=*.cssweb.sh.cn"
+
+openssl x509 -req -days 36500 -sha1 -extensions v3_ca -signkey private/ca.key.pem -in private/ca.csr -out certs/ca.cer
+
+openssl pkcs12 -export -cacerts -inkey private/ca.key.pem -in certs/ca.cer -out certs/ca.p12
+
+
+
+
+
+openssl genrsa -aes256 -out private/server.key.pem 2048
+openssl genrsa -out private/server.key.pem 2048
+
+openssl req -new -key private/server.key.pem -out private/server.csr -subj "/C=CN/ST=SH/L=SH/O=cssweb/OU=product/CN=trade.cssweb.sh.cn"
+
+openssl x509 -req -days 36500 -sha1 -extensions v3_ca -CA certs/ca.cer -CAkey private/ca.key.pem -CAserial ca.srl -CAcreateserial -in private/server.csr -out certs/server.cer
+
+openssl pkcs12 -export -clcerts -inkey private/server.key.pem -in certs/server.cer -out certs/server.p12
+
+
+
+
+
+keytool -importkeystore -v -srckeystore certs/ca.p12 -srcstoretype pkcs12 -destkeystore trade.keystore.jks -deststoretype jks
+keytool -importkeystore -v -srckeystore certs/server.p12 -srcstoretype pkcs12 -destkeystore trade.keystore.jks -deststoretype jks
+keytool -list -keystore trade.keystore.jks -v
+
+
+keytool -importkeystore -v -srckeystore certs/ca.p12 -srcstoretype pkcs12 -destkeystore trade.truststore.jks -deststoretype jks
+keytool -importkeystore -v -srckeystore certs/server.p12 -srcstoretype pkcs12 -destkeystore trade.truststore.jks -deststoretype jks
+keytool -list -keystore trade.truststore.jks -v
